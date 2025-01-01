@@ -24,7 +24,8 @@
 
             // x^n = m을 만족하는 x 계산
             const x = Math.pow(m, 1 / n);
-            document.getElementById('result').innerText = `ROI per day: ${x.toFixed(4)}`;
+            const percentage = (x - 1) * 100; // 백분율로 변환
+            document.getElementById('result').innerText = `ROI per day: ${percentage.toFixed(2)}%`;
         }
     </script>
 </head>
