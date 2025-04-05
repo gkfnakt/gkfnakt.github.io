@@ -2,42 +2,108 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ROI 계산기</title>
-    <script>
-        function calculateROI() {
-            const dayInput = document.getElementById('day').value;
-            const roiInput = document.getElementById('roi').value;
-
-            const n = parseInt(dayInput);
-            const m = parseFloat(roiInput);
-
-            if (isNaN(n) || n <= 0 || !Number.isInteger(n)) {
-                alert("자연수를 입력하세요.");
-                return;
-            }
-
-            if (isNaN(m) || m <= 0) {
-                alert("양의 실수를 입력하세요.");
-                return;
-            }
-
-            // x^n = m을 만족하는 x 계산
-            const x = Math.pow(m, 1 / n);
-            const percentage = (x - 1) * 100; // 백분율로 변환
-            document.getElementById('result').innerText = `ROI per day: ${percentage.toFixed(2)}%`;
+    <title>기간 수익률 계산기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
         }
-    </script>
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
-    <h1>ROI 계산기</h1>
-    <label for="day">Day (자연수): </label>
-    <input type="number" id="day" min="1" required>
-    <br>
-    <label for="roi">ROI (양의 실수): </label>
-    <input type="number" id="roi" step="0.01" required>
-    <br>
-    <button onclick="calculateROI()">계산하기</button>
-    <h2 id="result"></h2>
+    <div class="container">
+        <h2>주기적 수익률 계산기</h2>
+        <div class="input-group">
+            <label for="periods">투자 기간 (n):</label>
+            <input type="number" id="periods" min="1" required>
+        </div>
+        <div class="input-group">
+            <label for="return">목표 수익률 (m):</label>
+            <input type="text" id="return" placeholder="예: 10% 또는 0.1" required>
+        </div>
+        <button onclick="calculateReturn()">계산하기</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function calculateReturn() {
+            const nInput = document.getElementById('periods');
+            const mInput = document.getElementById('return');
+            const resultDiv = document.getElementById('result');
+            
+            // 입력 초기화
+            resultDiv.innerHTML = '';
+            nInput.style.border = '1px solid #ddd';
+            mInput.style.border = '1px solid #ddd';
+
+            try {
+                // 입력 유효성 검사
+                const n = parseInt(nInput.value);
+                if (isNaN(n) || n < 1) {
+                    throw new Error('유효한 기간(n)을 입력해주세요 (1 이상의 정수)');
+                }
+
+                let m = mInput.value.trim();
+                const isPercentage = m.includes('%');
+                m = parseFloat(m.replace('%', '')) / (isPercentage ? 100 : 1);
+
+                if (isNaN(m)) {
+                    throw new Error('유효한 수익률(m)을 입력해주세요 (예: 10% 또는 0.1)');
+                }
+
+                if (1 + m <= 0) {
+                    throw new Error('수익률이 -100%보다 커야 합니다');
+                }
+
+                // 주기 수익률 계산
+                const periodicReturn = Math.pow(1 + m, 1/n) - 1;
+                const percentage = (periodicReturn * 100).toFixed(2);
+
+                resultDiv.innerHTML = `필요한 주기 수익률: <span style="color:#2c3e50">${percentage}%</span>`;
+                
+            } catch (error) {
+                // 오류 처리
+                nInput.style.border = '1px solid #e74c3c';
+                mInput.style.border = '1px solid #e74c3c';
+                resultDiv.innerHTML = `<span style="color:#e74c3c">오류: ${error.message}</span>`;
+            }
+        }
+    </script>
 </body>
 </html>
